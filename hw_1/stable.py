@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.sparse import diags
-from scipy.sparse.linalg import spsolve
+from scipy.linalg import solve_banded
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 
@@ -31,10 +31,10 @@ def shrodinger_euler_solver(L, H, x_b, w_b, x_0, sig, m = 1, k0 = 15, T = 0.5, N
     # Диагональ: 2*gamma - 2 - 2*m*dx^2*V
     # Побочные: 1
     main_diag_A = [1.0] + [2*gamma - 2 - 2*m*dx**2 * V(x_i) for x_i in x[1:-1]] + [1.0]
-    up_diag_A = [0.0] + [1.0] * (N-1) # Единицы на побочных
-    down_diag_A = [1.0] * (N-1) + [0.0] # Единицы на побочных
+    up_diag_A = [0.0] + [0.0] + [1.0] * (N-1) # Единицы на побочных
+    down_diag_A = [1.0] * (N-1) + [0.0] + [0.0] # Единицы на побочных
     
-    A = diags([main_diag_A, up_diag_A, down_diag_A], [0, 1, -1], format='csc')
+    A = np.array([up_diag_A, main_diag_A, down_diag_A],dtype=complex)
 
     # --- МАТРИЦА B (Правая часть) ---
     main_diag_B = [1.0] + [2*gamma + 2 + 2*m*dx**2 * V(x_i) for x_i in x[1:-1]] + [1.0]
@@ -106,7 +106,7 @@ def shrodinger_euler_solver(L, H, x_b, w_b, x_0, sig, m = 1, k0 = 15, T = 0.5, N
             rhs = B.dot(psi)
             
             # 2. Решаем систему: A * psi_new = rhs
-            psi = spsolve(A, rhs)
+            psi = solve_banded((1,1), A, rhs)
         current_norm = np.sum(np.abs(psi)**2) * dx
         text_norm.set_text(f'Norm: {current_norm:.5f}')
         

@@ -1,7 +1,5 @@
 import numpy as np
-from scipy.sparse import diags
-from scipy.stats import norm
-from scipy.sparse.linalg import spsolve
+from scipy.linalg import solve_banded
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 
@@ -23,7 +21,7 @@ def psi_0_gauss(x, sig, x_0, k0):
         psi[-1] = 0.0
         return psi
 
-def shrodinger_euler_solver(L, H, x_b, w_b, x_0, sig, m = 1, k0 = 15, T = 0.5, N = 1000, M = 1000, init_state = 'gauss',name = 'quantum_evolution'):
+def shrodinger_euler_solver(L, H, x_b, w_b, x_0, sig, m = 1, k0 = 15, T = 0.5, N = 1000, M = 1000, init_state = 'gauss',name = 'quantum_evolution', frames = 300):
     def V(x):
         '''
         Потенциал
@@ -48,10 +46,11 @@ def shrodinger_euler_solver(L, H, x_b, w_b, x_0, sig, m = 1, k0 = 15, T = 0.5, N
 
     ### МАТРИЦА А (ТВОЙ КОД) ###
     main_diag = [1.0] + [1.0 - 2/gamma * (1.0 + m * dx**2 * V(x_i)) for x_i in x[1:-1]] + [1.0]
-    up_diag = [0.0] + [1/gamma] * (N-1)
-    low_diag = [1/gamma] * (N-1) + [0.0]
+    up_diag = [0.0] + [0.0] + [1/gamma] * (N-1)
+    low_diag = [1/gamma] * (N-1) + [0.0] + [0.0]
 
-    A = diags([main_diag, up_diag, low_diag], [0, 1, -1], format='csc', dtype=np.complex128)
+    A = np.array([up_diag, main_diag, low_diag], dtype=complex)
+    print("Матрица A успешно создана. Размер:", A.shape)
 
     ### ИНИЦИАЛИЗАЦИЯ ###
     if init_state == 'gauss':
@@ -61,6 +60,8 @@ def shrodinger_euler_solver(L, H, x_b, w_b, x_0, sig, m = 1, k0 = 15, T = 0.5, N
         psi = psi_0_sin(n, x, L)
     else:
         raise ValueError('Неверное имя для начальной функции!!!')
+    
+    ### РИСОВАНИЕ ###
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(8, 10), sharex=True)
     plt.subplots_adjust(hspace=0.3)
 
@@ -102,7 +103,7 @@ def shrodinger_euler_solver(L, H, x_b, w_b, x_0, sig, m = 1, k0 = 15, T = 0.5, N
         line_imag.set_data([], [])
         return line_prob, line_real, line_imag
 
-    GIF_FRAMES = 300 
+    GIF_FRAMES = frames
     
     steps_per_frame = max(1, int(M / GIF_FRAMES))
     
@@ -110,7 +111,7 @@ def shrodinger_euler_solver(L, H, x_b, w_b, x_0, sig, m = 1, k0 = 15, T = 0.5, N
         nonlocal psi
 
         for _ in range(steps_per_frame):
-            psi = spsolve(A, psi)
+            psi = solve_banded((1,1), A, psi)
         
         current_norm = np.sum(np.abs(psi)**2) * dx
         text_norm.set_text(f'Norm: {current_norm:.5f}')
@@ -133,13 +134,13 @@ def shrodinger_euler_solver(L, H, x_b, w_b, x_0, sig, m = 1, k0 = 15, T = 0.5, N
 
 if __name__ == '__main__':
     #### ПАРАМЕТРЫ ####
-    L = 4.0 # Расстояния между стенками
+    L = 6.0 # Расстояния между стенками
     x_0 = 1.0 # Среднее Гаусса
     sig = 0.3 # Стандартное отклонение Гаусса (чуть поуже для наглядности)
     m = 1.0 # Масса частицы
-    k0 = 5.0 # Волновой вектор (чуть побыстрее)
+    k0 = 0.5 # Волновой вектор (чуть побыстрее)
     H = 10 # Высота барьера
-    x_b = 1.5 # Начало барьера
+    x_b = 3 # Начало барьера
     w_b = 0.5 # Ширина барьера
 
     ### СЕТКА ###
@@ -148,4 +149,4 @@ if __name__ == '__main__':
     T = 1 # Время моделирования
     M = 100 * int(T * (k0**2/2 + 2*N**2/L**2)/m) # Число кадров анимации
     shrodinger_euler_solver(L = L, H = H, x_b = x_b, w_b = w_b, x_0 = x_0, sig = sig, m = m, k0 = k0, 
-                            T = T, N = N, M = M, init_state='gauss', name = 'quantum_evolution_two_barriers_2')
+                            T = T, N = N, M = M, init_state='gauss', name = 'quantum_evolution_example', frames = 600)
