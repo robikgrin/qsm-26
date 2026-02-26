@@ -173,6 +173,9 @@ $$
 
 ![Два барьера](quantum_evolution_two_barriers_2.gif)
 
+Ну и самый лучший пример
+
+![Лучший](quantum_evolution_best_example.gif)
 # Решение, сохраняющее норму
 
 ## Схема Кранка-Николсона
