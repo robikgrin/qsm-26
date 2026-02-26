@@ -11,19 +11,22 @@ $$
 
 $$
 c_n = \int_{0}^{L} dx\ \phi_n^{*}(x) \psi_0(x)
-$$ и 
+$$ 
+
+и 
 
 $$
 E_n = \frac{1}{2m}(\frac{\pi n}{L})^2
 $$ 
 
-∂В случае
+В случае
 
 $$
 \psi_0(x) = \frac{1}{(2\pi \sigma^2)^{1/4}}\ \exp\left(-\frac{(x - x_0)^2}{4\sigma^2} \right)\ e^{ik_0x}
 $$
 
 Мы будем иметь 
+
 $$
 c_n = \sqrt{\frac{2}{L}} \frac{1}{(2\pi \sigma^2)^{1/4}}\int_{0}^{L} \sin (\frac{\pi n x}{L}) e^{-\frac{(x - x_0)^2}{4\sigma^2}} e^{ik_0 x} dx
 $$
@@ -33,6 +36,7 @@ $$
 $$
 c_n = -i \sqrt{\frac{\sigma}{2L}} \left(\frac{\pi}{2} \right)^{1/4} \exp\left(-\frac{x_0^2}{4\sigma^2}\right) \left[e^{\frac{t_1^2}{4\sigma^2}} \left( \text{erf} \left(\frac{L - t_1}{2\sigma} \right)  + \text{erf} \left(\frac{t_1}{2\sigma} \right)\right) - e^{\frac{t_2^2}{4\sigma^2}} \left(\text{erf} \left(\frac{L - t_2}{2\sigma} \right)  + \text{erf} \left(\frac{t_2}{2\sigma}\right)\right)\right]  
 $$
+
 где $t_1 = 2x_0 + 4i\sigma^2 \left(\frac{\pi n}{L} - k_0 \right)$, $t_2 = 2x_0 - 4i\sigma^2 \left(\frac{\pi n}{L} + k_0 \right)$, а $\text{erf}(x) = \frac{2}{\sqrt{\pi}} \int_{0}^{x} e^{-\xi^2} d\xi$.
 
 Однако данное решение плохо работает с данными с плавающей точкой, так как $t_1/2\sigma  \propto x_0/\sigma$, что в случае малых $\sigma$ улетает в бесконечность. Из-за этого будет страдать и функция ошибок Гаусса и множители перед ними. Можно переписать выражение в форме, устойчивой к таким ошибкам
