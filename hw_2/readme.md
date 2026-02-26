@@ -7,7 +7,17 @@ $$
 \psi(x,t) = \sum_{n} c_n \phi_n(x) e^{-i E_n t}
 $$
 
-где $c_n = \int_{0}^{L} dx\ \phi_n^{*}(x) \psi_0(x)$ и $E_n = \frac{1}{2m}(\frac{\pi n}{L})^2$ В случае
+где 
+
+$$
+c_n = \int_{0}^{L} dx\ \phi_n^{*}(x) \psi_0(x)
+$$ и 
+
+$$
+E_n = \frac{1}{2m}(\frac{\pi n}{L})^2
+$$ 
+
+∂В случае
 
 $$
 \psi_0(x) = \frac{1}{(2\pi \sigma^2)^{1/4}}\ \exp\left(-\frac{(x - x_0)^2}{4\sigma^2} \right)\ e^{ik_0x}
