@@ -37,9 +37,9 @@ def get_wavefunction(amplitudes, L, x):
     '''
     Получение ВФ из разложения по базису Гамильтониана для бесконечного потенциала
     '''
-    psi = np.zeros_like(x, dtype=complex)
-    for n in range(amplitudes.shape[0]):
-        psi += amplitudes[n] * phi_n(n+1, L, x)
+    n = np.arange(1, amplitudes.shape[0] + 1)
+    psi_n_s = np.sqrt(2/L) * np.sin(np.outer(n, x) * (np.pi / L))
+    psi = amplitudes @ psi_n_s
     return psi
 
 def series_solver(L, H, x_b, w_b, x_0, sig, m = 1,
@@ -61,13 +61,32 @@ def series_solver(L, H, x_b, w_b, x_0, sig, m = 1,
     init_amplitudes = get_exact_amplitudes(x_0, sig, k0, L, N_max)
     
     ### ГАМИЛЬТОНИАН ###
-    H_matrix = np.zeros((N_max, N_max), dtype=complex)
-    for i,j in np.ndindex(N_max, N_max):
-        if i == j:
-            H_matrix[i,i] = (np.pi * (i+1)/L)**2/(2*m) + H * (w_b/L - 1/(2*np.pi * (i+1)) * (np.sin(np.pi * (x_b + w_b) * 2 * (i+1)/L) - np.sin(2 * np.pi * x_b * (i+1)/L)))
-        else:
-            H_matrix[i,j] = H/np.pi * ((np.sin(np.pi * (x_b + w_b) * (i-j)/L) - np.sin(np.pi * x_b * (i - j)/L))/(i - j) - (np.sin(np.pi * (x_b + w_b) * (i + j + 2)/L) - np.sin(np.pi * x_b * (i + j + 2)/L))/(i + j + 2))
+    n = np.arange(1, N_max + 1)
+    
+    # Создаем 2D сетки (столбец и строку)
+    n_i = n[:, np.newaxis]
+    n_j = n[np.newaxis, :]
 
+    diff = n_i - n_j
+    summ = n_i + n_j
+
+    # Защита от деления на ноль на главной диагонали
+    safe_diff = np.where(diff == 0, 1, diff)
+
+    # Считаем внедиагональные элементы для всей матрицы разом
+    term1 = (np.sin(np.pi * (x_b + w_b) * safe_diff / L) - np.sin(np.pi * x_b * safe_diff / L)) / safe_diff
+    term2 = (np.sin(np.pi * (x_b + w_b) * summ / L) - np.sin(np.pi * x_b * summ / L)) / summ
+    
+    H_matrix = (H / np.pi) * (term1 - term2)
+
+    diag_term = (np.pi * n / L)**2 / (2 * m) + H * (
+        w_b / L - 1 / (2 * np.pi * n) * (
+            np.sin(np.pi * (x_b + w_b) * 2 * n / L) - np.sin(2 * np.pi * x_b * n / L)
+        )
+    )
+    np.fill_diagonal(H_matrix, diag_term)
+    H_matrix = H_matrix.astype(complex)
+    
     print('Is Herm?', np.allclose(H_matrix, H_matrix.conj().T))
 
     ### SVD ###
