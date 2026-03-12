@@ -26,7 +26,7 @@ G = 1/2 * np.array([[1 + C, -S*(K + 1j*T), S * (-K + 1j*T), 1-C],
 
 ##### ХИ-МАТРИЦА #####
 chi = G.reshape(2, 2, 2, 2).transpose(0, 2, 1, 3).reshape(4, 4)
-##### КРАУСОВЫЕ ОПЕРАТОРЫ #####
+##### ОПЕРАТОРЫ КРАУСА #####
 eigenvalues, eigenvectors = np.linalg.eig(chi)
 
 idx = np.argsort(eigenvalues.real)[::-1]
@@ -41,9 +41,9 @@ for i in range(4):
         phase = np.exp(1j * (np.pi/2 - np.angle(K_i[0,0])))
         kraus_operators.append(K_i * phase)
 
-print("--- ЧИСЛЕННЫЕ ОПЕРАТОРЫ (Kraus operators) ---")
+print("--- ЧИСЛЕННЫЕ ОПЕРАТОРЫ ---")
 for i, K_i in enumerate(kraus_operators):
-    print(f"Kraus operator {i+1}:\n{np.round(K_i, 5)}\n")
+    print(f"Краус (эксп) #{i+1}:\n{np.round(K_i, 5)}\n")
 
 ##### АНАЛИТИЧЕСКИЕ ОПЕРАТОРЫ КРАУСА #####
 N_star = np.array([[0, np.exp(1j * phi)], [np.exp(-1j * phi), 0]], dtype=np.complex128)
