@@ -6,7 +6,7 @@ import matplotlib.lines as mlines
 from matplotlib.colors import to_rgba
 
 # ---  ПАРАМЕТРЫ КАНАЛА ---
-MU = 0.3
+MU = 0.01
 PHI = np.pi/2 
 THETA_TOTAL = 2 * np.pi
 
